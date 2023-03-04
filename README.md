@@ -11,5 +11,5 @@ npm install discord.js dotenv
 
 Make sure to run this command in the same directory where your code file is located.
 
+It is required that you have Node.js installed and run npm install discord.js dotenv in your project directory to install the Discord.js library. Then, you can run the code with node your-script-name.js after creating a .env file with your actual bot token in it.
 
-It is required that you have Node.js installed and run npm install discord.js in your project directory to install the Discord.js library. Then, you can run the code with node your-script-name.js after creating a .env file with your actual bot token in it.
