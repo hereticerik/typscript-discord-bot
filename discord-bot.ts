@@ -1,99 +1,88 @@
-import Discord from 'discord.js';
-import fs from 'fs';
-import dotenv from 'dotenv';
+import axios from 'axios';
+import { Client, Message } from 'discord.js';
+import { YTSearchListResponse } from 'googleapis/youtube/v3';
 import { google } from 'googleapis';
+import dotenv from 'dotenv';
 
-// Load the environment variables from the .env file
 dotenv.config();
 
-// Retrieve the bot token and YouTube API key from the environment variables
-const token = process.env.BOT_TOKEN;
-const apiKey = process.env.YOUTUBE_API_KEY;
+const client = new Client();
+const prefix = '!'; // change this to your bot's command prefix
+const openWeatherApiKey = process.env.OPENWEATHER_API_KEY;
+const youtubeApiKey = process.env.YOUTUBE_API_KEY;
+const statsChannelId = 'your_stats_channel_id'; // change this to the ID of your server statistics channel
+const youtubeChannelId = 'your_youtube_channel_id'; // change this to the ID of your YouTube notifications channel
 
-// Create a new Discord client
-const client = new Discord.Client();
-
-// Define the prefix for the bot's commands
-const prefix = '!';
-
-// Define a Map to store the muted users and their timeout IDs
-const mutedUsers = new Map<Discord.User, NodeJS.Timeout>();
-
-// Define a Map to store custom commands and their file paths
-const customCommands = new Map<string, string>();
-
-// Define a Map to store active polls and their results
-const activePolls = new Map<string, { options: string[], votes: number[] }>();
-
-// Define the ID of the channel for printing server statistics
-const statsChannelId = '123456789012345678';
-
-// Define the ID of the channel for posting new YouTube videos
-const youtubeChannelId = 'UC123456789012345678';
-
-// Define the interval for checking the YouTube channel (in seconds)
-const youtubeCheckInterval = 300;
-
-// Create a new YouTube Data API client
-const youtube = google.youtube({
-  version: 'v3',
-  auth: apiKey
-});
-
-// Event listener for when the client is ready
 client.on('ready', () => {
   console.log(`Logged in as ${client.user?.tag}!`);
-
-  // Start checking the YouTube channel for new videos
-  setInterval(checkYouTubeChannel, youtubeCheckInterval * 1000);
 });
 
-// Event listener for when the bot receives a message
-client.on('message', async (message: Discord.Message) => {
-  // Ignore messages sent by bots or messages without the prefix
+client.on('message', async (message: Message) => {
   if (message.author.bot || !message.content.startsWith(prefix)) return;
 
-  // Split the message into the command and arguments
-  const [command, ...args] = message.content.slice(prefix.length).trim().split(/ +/);
+  const args = message.content.slice(prefix.length).trim().split(/ +/g);
+  const command = args.shift()?.toLowerCase();
 
-  // Handle different commands
   if (command === 'ping') {
-    // Calculate the response time
     const startTime = Date.now();
-    const reply = await message.reply('Pinging...');
+    const reply = await message.channel.send('Pinging...');
     const endTime = Date.now();
     const responseTime = endTime - startTime;
-
-    // Edit the reply with the response time
     reply.edit(`Pong! Response time: ${responseTime}ms`);
-  } else if (command === 'hello') {
-    // Reply with 'Hello!'
-    message.reply('Hello!');
-  } else if (command === 'kick') {
-    // Check if the user has the 'KICK_MEMBERS' permission
-    if (!message.member?.hasPermission('KICK_MEMBERS')) {
-      message.reply("You don't have permission to kick members.");
+  } else if (command === 'mute') {
+    if (!message.member?.hasPermission('MUTE_MEMBERS')) {
+      message.channel.send('You do not have permission to use this command.');
       return;
     }
 
-    // Get the user to kick
-    const user = message.mentions.users.first();
+    const user = message.mentions.members?.first();
     if (!user) {
-      message.reply('You must mention a user to kick.');
+      message.channel.send('Please mention a user to mute.');
       return;
     }
 
-    // Kick the user
+    const isMuted = user.voice.serverMute;
+    await user.voice.setMute(!isMuted);
+    message.channel.send(`${user} has been ${isMuted ? 'unmuted' : 'muted'}.`);
+  } else if (command === 'file') {
+    const fileName = args[0];
+    if (!fileName) {
+      message.channel.send('Please specify a file name.');
+      return;
+    }
+
     try {
-      const member = await message.guild?.members.fetch(user);
-      await member?.kick();
-      message.reply(`Kicked ${user.tag}.`);
+      const data = require(`./${fileName}`);
+      message.channel.send(`\`\`\`${data}\`\`\``);
     } catch (error) {
       console.error(error);
-      message.reply('An error occurred while trying to kick the user.');
+      message.channel.send(`Sorry, I could not find the file "${fileName}".`);
     }
-  } else if (command === 'mute') {
-    // Check if the user has the 'MANAGE_ROLES' permission
-    if (!message.member?.hasPermission
+  } else if (command === 'poll') {
+    const question = args.join(' ');
+    if (!question) {
+      message.channel.send('Please provide a question for the poll.');
+      return;
+    }
 
-// End of script 
+    const pollMessage = await message.channel.send(`📊 ${question}`);
+
+    await pollMessage.react('👍');
+    await pollMessage.react('👎');
+  } else if (command === 'weather') {
+    const city = args.join(' ');
+    const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${openWeatherApiKey}`;
+
+    try {
+      const response = await axios.get(apiUrl);
+      const weatherData = response.data;
+      const weatherDescription = weatherData.weather[0].description;
+      const temperature = weatherData.main.temp;
+      const feelsLike = weatherData.main.feels_like;
+
+      message.channel.send(`Current weather in ${city}: ${weatherDescription}, ${temperature}°C (feels like ${feelsLike}°C)`);
+    } catch (error) {
+      console.error(error);
+      message.channel.send('Sorry
+
+// End of script
