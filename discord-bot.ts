@@ -1,12 +1,30 @@
-// A simple discord bot written in typescript
-
 import Discord from 'discord.js';
+import fs from 'fs';
+import dotenv from 'dotenv';
+
+// Load the environment variables from the .env file
+dotenv.config();
+
+// Retrieve the bot token from the environment variables
+const token = process.env.BOT_TOKEN;
 
 // Create a new Discord client
 const client = new Discord.Client();
 
 // Define the prefix for the bot's commands
 const prefix = '!';
+
+// Define a Map to store the muted users and their timeout IDs
+const mutedUsers = new Map<Discord.User, NodeJS.Timeout>();
+
+// Define a Map to store custom commands and their file paths
+const customCommands = new Map<string, string>();
+
+// Define a Map to store active polls and their results
+const activePolls = new Map<string, { options: string[], votes: number[] }>();
+
+// Define the ID of the channel for printing server statistics
+const statsChannelId = '123456789012345678';
 
 // Event listener for when the client is ready
 client.on('ready', () => {
@@ -23,8 +41,14 @@ client.on('message', async (message: Discord.Message) => {
 
   // Handle different commands
   if (command === 'ping') {
-    // Reply with 'Pong!'
-    message.reply('Pong!');
+    // Calculate the response time
+    const startTime = Date.now();
+    const reply = await message.reply('Pinging...');
+    const endTime = Date.now();
+    const responseTime = endTime - startTime;
+
+    // Edit the reply with the response time
+    reply.edit(`Pong! Response time: ${responseTime}ms`);
   } else if (command === 'hello') {
     // Reply with 'Hello!'
     message.reply('Hello!');
@@ -51,8 +75,25 @@ client.on('message', async (message: Discord.Message) => {
       console.error(error);
       message.reply('An error occurred while trying to kick the user.');
     }
-  }
-});
+  } else if (command === 'mute') {
+    // Check if the user has the 'MANAGE_ROLES' permission
+    if (!message.member?.hasPermission('MANAGE_ROLES')) {
+      message.reply("You don't have permission to manage roles.");
+      return;
+    }
 
-// Log in to Discord with the bot's token
-client.login('your-bot-token-here');
+    // Get the user to mute
+    const user = message.mentions.users.first();
+    if (!user) {
+      message.reply('You must mention a user to mute.');
+      return;
+    }
+
+    // Get the 'Muted' role
+    const mutedRole = message.guild?.roles.cache.find(role => role.name === 'Muted');
+    if (!mutedRole) {
+      message.reply('The server does not have a "Muted" role.');
+      return;
+    }
+
+    // End of script
