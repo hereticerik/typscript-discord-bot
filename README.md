@@ -1,15 +1,21 @@
 # typscript-discord-bot
 A very simple discord bot written in typescript
 
-## To run this code, you will need to install the following dependencies:
+## To run this code, you will need to install the following dependencies and follow these steps:
 
-discord.js: The official Discord API library for Node.js
-dotenv: A zero-dependency module that loads environment variables from a .env file into process.env
-You can install these dependencies using npm (Node Package Manager) by running the following command in your terminal:
+To install and run this script, follow these steps:
 
-npm install discord.js dotenv
+1. Make sure you have Node.js and npm (Node Package Manager) installed on your system.
+2. Create a new folder for your bot and navigate to it in your terminal.
+3. Create a new file named index.ts and copy the code into it.
+4. Install the required dependencies by running the command npm install discord.js googleapis dotenv.
+5. Create a new file named .env in the same directory as index.ts and add your Discord bot token and YouTube API key to it:
 
-Make sure to run this command in the same directory where your code file is located.
+BOT_TOKEN=<your bot token>
+YOUTUBE_API_KEY=<your YouTube API key>
 
-It is required that you have Node.js installed and run npm install discord.js dotenv in your project directory to install the Discord.js library. Then, you can run the code with node your-script-name.js after creating a .env file with your actual bot token in it.
+6. Replace the statsChannelId and youtubeChannelId variables with the IDs of the channels you want to use for server statistics and new YouTube video notifications.
+7. Run the command npx tsc index.ts to compile the TypeScript code into JavaScript.
+8. Run the command node index.js to start the bot.
 
+That's it! Your bot should now be online and ready to use. You can invite it to your Discord server by generating an invite link using the Discord Developer Portal.
