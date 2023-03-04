@@ -17,7 +17,7 @@ YOUTUBE_API_KEY=<your YouTube API key>
 ```
 
 6. Replace the statsChannelId and youtubeChannelId variables with the IDs of the channels you want to use for server statistics and new YouTube video notifications.
-7. Run the command npx tsc index.ts to compile the TypeScript code into JavaScript.
-8. Run the command node index.js to start the bot.
+7. Run the command `npx tsc index.ts` to compile the TypeScript code into JavaScript.
+8. Run the command `node index.js` to start the bot.
 
 That's it! Your bot should now be online and ready to use. You can invite it to your Discord server by generating an invite link using the Discord Developer Portal.
