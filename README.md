@@ -1,7 +1,7 @@
 # typscript-discord-bot
 A very simple discord bot written in typescript
 
-##To run this code, you will need to install the following dependencies:
+## To run this code, you will need to install the following dependencies:
 
 discord.js: The official Discord API library for Node.js
 dotenv: A zero-dependency module that loads environment variables from a .env file into process.env
