@@ -1,12 +1,14 @@
 import Discord from 'discord.js';
 import fs from 'fs';
 import dotenv from 'dotenv';
+import { google } from 'googleapis';
 
 // Load the environment variables from the .env file
 dotenv.config();
 
-// Retrieve the bot token from the environment variables
+// Retrieve the bot token and YouTube API key from the environment variables
 const token = process.env.BOT_TOKEN;
+const apiKey = process.env.YOUTUBE_API_KEY;
 
 // Create a new Discord client
 const client = new Discord.Client();
@@ -26,9 +28,24 @@ const activePolls = new Map<string, { options: string[], votes: number[] }>();
 // Define the ID of the channel for printing server statistics
 const statsChannelId = '123456789012345678';
 
+// Define the ID of the channel for posting new YouTube videos
+const youtubeChannelId = 'UC123456789012345678';
+
+// Define the interval for checking the YouTube channel (in seconds)
+const youtubeCheckInterval = 300;
+
+// Create a new YouTube Data API client
+const youtube = google.youtube({
+  version: 'v3',
+  auth: apiKey
+});
+
 // Event listener for when the client is ready
 client.on('ready', () => {
   console.log(`Logged in as ${client.user?.tag}!`);
+
+  // Start checking the YouTube channel for new videos
+  setInterval(checkYouTubeChannel, youtubeCheckInterval * 1000);
 });
 
 // Event listener for when the bot receives a message
@@ -77,23 +94,6 @@ client.on('message', async (message: Discord.Message) => {
     }
   } else if (command === 'mute') {
     // Check if the user has the 'MANAGE_ROLES' permission
-    if (!message.member?.hasPermission('MANAGE_ROLES')) {
-      message.reply("You don't have permission to manage roles.");
-      return;
-    }
+    if (!message.member?.hasPermission
 
-    // Get the user to mute
-    const user = message.mentions.users.first();
-    if (!user) {
-      message.reply('You must mention a user to mute.');
-      return;
-    }
-
-    // Get the 'Muted' role
-    const mutedRole = message.guild?.roles.cache.find(role => role.name === 'Muted');
-    if (!mutedRole) {
-      message.reply('The server does not have a "Muted" role.');
-      return;
-    }
-
-    // End of script
+// End of script 
