@@ -29,3 +29,5 @@ Replace your_discord_bot_token_here, your_openweathermap_api_key_here, and your_
 
 
 Your bot should now be online and ready to use. You can invite it to your Discord server by generating an invite link using the Discord Developer Portal.
+
+**This Discord Bot was made for Educational Purposes as an Example**
